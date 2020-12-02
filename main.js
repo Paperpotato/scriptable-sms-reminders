@@ -1,4 +1,6 @@
 let pullDate = args.shortcutParameter
+let now = new Date()
+let dayOfWeek = now.getDay()
 
 async function getFact() {
   let url = "https://uselessfacts.jsph.pl/random.json?language=en"
@@ -58,16 +60,32 @@ events.forEach(eventName => {
       if (!patientArray.includes(eventName.title)) {
 
       patientArray.push(eventName.title)
+      let hasEmail = contact.emailAddresses.length
       
       pList.push({
         firstName: firstName,
         name: `${firstName} ${lastName}`,
-        number: contact.phoneNumbers[0].value,
-        startTime: formatTime(startTime),
-        randomFact: factArray[counter] ? `\nRandom fun fact: ${factArray[counter]}` : null
+        number: contact.phoneNumbers[0].value ? contact.phoneNumbers[0].value : '0433772956',
+        contactExists: true,
+        smsBody: hasEmail ? `Hay ${firstName}!\n\nThis is a friendly meow reminder for your appointment ${pullDate === 'today' ? 'today' : 'tomorrow'} at: ${formatTime(startTime)}.\n\n${factArray[counter] ? `Random fun fact: ${factArray[counter]}` : null}\n🙂🦄` : `Hay ${firstName}!\n\nThis is a friendly meow reminder for your appointment ${pullDate === 'today' ? 'today' : 'tomorrow'} at: ${formatTime(startTime)}.\n\n${factArray[counter] ? `Random fun fact: ${factArray[counter]}` : null}\n\nAlso, unfortunately I don't have your email in my system 🤖 may I please have your email address? Thank you! 🙂🦄`
+        
       })
       
       counter = counter < 2 ? counter + 1 : counter = 0
+    
+    if (pullDate === 'today') {
+        if (dayOfWeek === 2 || dateOfWeek === 4) {
+            contact.note = 'Gingin Chiro Clinic'
+            contact.update(contact)
+            contact.persistChanges()
+        }
+    } else {
+        if (dayOfWeek === 0 || dayOfWeek === 2 || dayOfWeek === 4 || dayOfWeek === 5) {
+            contact.note = 'Green Chiropractic'
+            contact.update(contact)    
+            contact.persistChanges()
+        }
+ }   
     }
      }
   }
@@ -83,11 +101,12 @@ events.forEach( event => {
         pList.push({
             firstName: event.title.match(/\w+/)[0],
             number: '0433772956',
-            startTime: formatTime(event.startDate),
-            randomFact: null
+            smsBody: `Hay ${event.title.match(/\w+/)[0]}!\n\nThis is a friendly reminder for your appointment ${pullDate === 'today' ? 'today' : 'tomorrow'} at: ${formatTime(event.startDate)}.\n\n${factArray[counter] ? `Random fun fact: ${factArray[counter]}` : null}\n🙂🦄`,
+//             contactExists: false
       })
     }
 })
+
 
 console.log( pList)
 
