@@ -16,6 +16,18 @@ let pList = []
 let patientArray = []
 let container = await ContactsContainer.all()
 let contacts = await Contact.all(container)
+const groups = await ContactsGroup.all(container)
+
+let ggGroup = null
+let gcGroup = null
+
+groups.forEach( group => {
+    if (group.name === 'Gingin Chiro Clinic') {
+        ggGroup = group
+    } else if (group.name === 'Green Chiropractic') {
+        gcGroup = group
+    }
+})
 
 let counter = 0
 let events
@@ -77,11 +89,13 @@ events.forEach(eventName => {
         if (dayOfWeek === 2 || dateOfWeek === 4) {
             contact.organizationName = 'Gingin Chiro Clinic'
             Contact.update(contact)
+            ggGroup.addMember(contact)
         }
     } else {
         if (dayOfWeek === 0 || dayOfWeek === 2 || dayOfWeek === 4 || dayOfWeek === 5) {
             contact.organizationName = 'Green Chiropractic'
             Contact.update(contact)    
+            gcGroup.addMember(contact)
         }
  }   
     }
