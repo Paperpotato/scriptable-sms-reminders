@@ -75,15 +75,13 @@ events.forEach(eventName => {
     
     if (pullDate === 'today') {
         if (dayOfWeek === 2 || dateOfWeek === 4) {
-            contact.note = 'Gingin Chiro Clinic'
-            contact.update(contact)
-            contact.persistChanges()
+            contact.organizationName = 'Gingin Chiro Clinic'
+            Contact.update(contact)
         }
     } else {
         if (dayOfWeek === 0 || dayOfWeek === 2 || dayOfWeek === 4 || dayOfWeek === 5) {
-            contact.note = 'Green Chiropractic'
-            contact.update(contact)    
-            contact.persistChanges()
+            contact.organizationName = 'Green Chiropractic'
+            Contact.update(contact)    
         }
  }   
     }
@@ -107,6 +105,7 @@ events.forEach( event => {
     }
 })
 
+Contact.persistChanges()
 
 console.log( pList)
 
