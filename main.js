@@ -85,19 +85,6 @@ events.forEach(eventName => {
       
       counter = counter < 2 ? counter + 1 : counter = 0
     
-    if (pullDate === 'today') {
-        if (dayOfWeek === 2 || dateOfWeek === 4) {
-            contact.organizationName = 'Gingin Chiro Clinic'
-            Contact.update(contact)
-            ggGroup.addMember(contact)
-        }
-    } else {
-        if (dayOfWeek === 0 || dayOfWeek === 2 || dayOfWeek === 4 || dayOfWeek === 5) {
-            contact.organizationName = 'Green Chiropractic'
-            Contact.update(contact)    
-            gcGroup.addMember(contact)
-        }
- }   
     }
      }
   }
@@ -118,8 +105,6 @@ events.forEach( event => {
       })
     }
 })
-
-Contact.persistChanges()
 
 console.log( pList)
 
