@@ -55,7 +55,8 @@ events.forEach(eventName => {
   let isConcession = eventName.title.toLowerCase().match(/\sc$/)
   let eventNameFormatted
   if (isInitial || isConcession) {
-    eventNameFormatted = eventName.title.match(/.*(?=\W\w*$)/)[0]
+    eventNameFormatted = eventName.title.match(/.*(?=\s\w+$)/)[0]
+
   } else { 
     eventNameFormatted = eventName.title
   }
@@ -69,8 +70,8 @@ events.forEach(eventName => {
   if (contact.familyName === lastName.toString() && contact.givenName === firstName.toString()) {
 
     if (contact.phoneNumbers.length === 1) {  
-      if (!patientArray.includes(eventName.title)) {
-
+      if (!patientArray.includes(eventName.title)) {  
+      console.log( eventName.title)
       patientArray.push(eventName.title)
       let hasEmail = contact.emailAddresses.length
       
@@ -94,14 +95,13 @@ events.forEach(eventName => {
 events.forEach( event => {
   let isInitial = event.title.toLowerCase().includes('initial')
     if (isInitial) {
-    event.title = event.title.match(/.*(?=\W\w*$)/)[0]
+      eventNameFormatted = event.title.match(/.*(?=\W\w*$)/)[0]
     }
     if (!patientArray.includes(event.title)) {
         pList.push({
             firstName: event.title.match(/\w+/)[0],
             number: '0433772956',
             smsBody: `Hay ${event.title.match(/\w+/)[0]}!\n\nThis is a friendly reminder for your appointment ${pullDate === 'today' ? 'today' : 'tomorrow'} at: ${formatTime(event.startDate)}.\n\n${factArray[counter] ? `Random fun fact: ${factArray[counter]}` : null}\n🙂🦄`,
-//             contactExists: false
       })
     }
 })
