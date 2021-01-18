@@ -4,7 +4,7 @@ let dayOfWeek = now.getDay()
 
 async function getFacts(amount) {
 //  let url = "https://uselessfacts.jsph.pl/random.json?language=en"    
-  let url = `https://cat-fact.herokuapp.com/facts/random?animal_type=cat&amount=${amount}`
+  let url = `https://cat-fact.herokuapp.com/facts/random?animal_type=cat&amount=${amount + 6}`
   let r = new Request(url)
   let facts = await r.loadJSON()
   return facts.map(fact => fact.text)
@@ -57,31 +57,35 @@ events.forEach(eventName => {
   let firstName = eventNameFormatted.match(/(^\w+)/)[0]
   let lastName = eventNameFormatted.match(/(?!\w+\s).*/)[0].trim()
   let startTime = eventName.startDate
+  
+  if (!eventNameFormatted.toLowerCase().includes('check') || !eventNameFormatted.toLowerCase().includes('cx')) {
+      contacts.forEach( contact => {
+      
+      if (contact.familyName === lastName.toString() && contact.givenName === firstName.toString()) {
 
-  contacts.forEach( contact => {
-    
-    if (contact.familyName === lastName.toString() && contact.givenName === firstName.toString()) {
+        if (contact.phoneNumbers.length === 1) {  
+          if (!patientArray.includes(eventName.title)) {  
+          console.log( eventName.title)
+          patientArray.push(eventName.title)
+          const hasEmail = contact.emailAddresses.length
 
-      if (contact.phoneNumbers.length === 1) {  
-        if (!patientArray.includes(eventName.title)) {  
-        console.log( eventName.title)
-        patientArray.push(eventName.title)
-        let hasEmail = contact.emailAddresses.length
-        
-        pList.push({
-          firstName: firstName,
-          name: `${firstName} ${lastName}`,
-          number: contact.phoneNumbers[0].value ? contact.phoneNumbers[0].value : '0433772956',
-          contactExists: true,
-          smsBody: hasEmail ? `Hay ${firstName}!\n\nThis is a friendly meow reminder for your appointment ${pullDate === 'today' ? 'today' : 'tomorrow'} at: ${formatTime(startTime)}.\n\n${factArray[counter] ? `Random cat fact: ${factArray[counter]}` : null}\n🙂🦄` : `Hay ${firstName}!\n\nThis is a friendly meow reminder for your appointment ${pullDate === 'today' ? 'today' : 'tomorrow'} at: ${formatTime(startTime)}.\n\n${factArray[counter] ? `Random cat fact: ${factArray[counter]}` : null}\n\nAlso, unfortunately I don't have your email in my system 🤖 may I please have your email address? Thank you! 🙂🦄`
-        })
-        
-        counter ++
+          const catFact = factArray[counter].match(/\w+/g).length >= 2 ? factArray[counter] : factArray[counter + 1]
+          
+          pList.push({
+            firstName: firstName,
+            name: `${firstName} ${lastName}`,
+            number: contact.phoneNumbers[0].value ? contact.phoneNumbers[0].value : '0433772956',
+            contactExists: true,
+            smsBody: hasEmail ? `Hay ${firstName}!\n\nThis is a friendly meow reminder for your appointment ${pullDate === 'today' ? 'today' : 'tomorrow'} at: ${formatTime(startTime)}.\n\nRandom Cat Fact: ${catFact}\n🙂🦄` : `Hay ${firstName}!\n\nThis is a friendly meow reminder for your appointment ${pullDate === 'today' ? 'today' : 'tomorrow'} at: ${formatTime(startTime)}.\n\nRandom Cat Fact: ${catFact}\n\nAlso, unfortunately I don't have your email in my system 🤖 may I please have your email address? Thank you! 🙂🦄`
+          })
+          
+          counter ++
 
+          }
         }
       }
-    }
-  })
+    })
+  }
 })
 
 events.forEach( event => {
