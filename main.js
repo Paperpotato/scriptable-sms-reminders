@@ -58,7 +58,7 @@ events.forEach(eventName => {
   let lastName = eventNameFormatted.match(/(?!\w+\s).*/)[0].trim()
   let startTime = eventName.startDate
   
-  if (!eventNameFormatted.toLowerCase().includes('check') || !eventNameFormatted.toLowerCase().includes('cx')) {
+  if (!eventNameFormatted.toLowerCase().includes('check') || !eventNameFormatted.toLowerCase().includes('cx') || !eventNameFormatted.toLowerCase().includes('coming')) {
       contacts.forEach( contact => {
       
       if (contact.familyName === lastName.toString() && contact.givenName === firstName.toString()) {
