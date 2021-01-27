@@ -41,7 +41,7 @@ function formatSMSBody(pullDate, firstName, startTime, catFact, hasEmail) {
   return `${greeting}\n\n${mainMessage}\n\n${appendCatFact}${checkEmail}`
 }
 
-function formatName(event) {
+function formatEvent(event) {
   const startTime = event.startDate
   const eventName = event.title
   const isInitial = event.title.toLowerCase().includes('initial')
@@ -57,7 +57,8 @@ function formatName(event) {
 }
 
 events.forEach(event => {
-  const { firstName, lastName, startTime, eventName } = formatName(event)
+  const { firstName, lastName, startTime, eventName } = formatEvent(event)
+  const catFact = factArray[counter].match(/\w+/g).length >= 2 ? factArray[counter] : factArray[counter + 1]
   
   if (eventName.toLowerCase().split(' ').some(word => ['cx', 'check', 'birthday', 'lunch', 'coming'].indexOf(word))) {
       contacts.forEach( contact => {
@@ -70,7 +71,6 @@ events.forEach(event => {
           console.log(eventName)
           patientArray.push(eventName)
           const hasEmail = contact.emailAddresses.length
-          const catFact = factArray[counter].match(/\w+/g).length >= 2 ? factArray[counter] : factArray[counter + 1]
           
           pList.push({
             number: contact.phoneNumbers[0].value ? contact.phoneNumbers[0].value : '0433772956',
@@ -84,14 +84,29 @@ events.forEach(event => {
       }
     })
   }
-})
 
-//Generate texts with invalid numbers and send to self
-events.forEach(event => {
-  if (!patientArray.includes(event.title)) {
-    console.log(`CONTACT NOT FOUND: ${event.title}`)
+  if (!patientArray.includes(eventName)) {
+    console.log(`CONTACT NOT FOUND: ${eventName}`)
+    pList.push({
+      number: '0433772956',
+      smsBody: formatSMSBody(pullDate, firstName, startTime, catFact, true)
+    })
+
+    counter ++
   }
 })
+
+// //Generate texts with invalid numbers and send to self
+// events.forEach(event => {
+//   const eventName = event.title
+//   if (!patientArray.includes(eventName)) {
+//     console.log(`CONTACT NOT FOUND: ${eventName}`)
+//     pList.push({
+//       number: '0433772956',
+//       smsBody: `Message to: ${eventName}`
+//     })
+//   }
+// })
 
 console.log( pList)
 
