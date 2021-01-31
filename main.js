@@ -36,9 +36,11 @@ function formatSMSBody(pullDate, firstName, startTime, catFact, hasEmail) {
   const greeting = `Hay ${firstName}!`
   const mainMessage = `This is a friendly meow reminder for your appointment ${day} at: ${formatTime(startTime)}.`
   const appendCatFact = `Random Cat Fact: ${catFact}`
-  const checkEmail = hasEmail ? `\n${signature}` : `\n\nAlso, unfortunately I don't have your email in my system 🤖 may I please have your email address? Thank you! ${signature}`
-  
-  return `${greeting}\n\n${mainMessage}\n\n${appendCatFact}${checkEmail}`
+//   const announcement = `\nAs you may already be aware, Perth metro is under Lockdown until Friday 6pm.\nJust like in March last year, essential health workers are able to keep working (with masks). However, if you are feeling *any* respiratory symptoms, please let me know immediately so we can reschedule your appointment.\n\nAside from that, please use the sanitiser provided when you come in, and practice social distancing. \nIf you would like to reschedule your appointment, please let me know and I can shift you to the same time next week. \n\nAll hail the almighty Mark McGowan!`
+const announcement = `\n\nLOCKDOWN UPDATE: THE FOLLOWING DOES NOT APPLY TO GINGIN\n\nAs you may already be aware, Perth metro is under Lockdown until Friday 6pm.\nJust like in March last year, essential health workers are able to keep working (with masks). However, if you are feeling *any* respiratory symptoms, please let me know immediately so we can reschedule your appointment.\n\nAside from that, please use the sanitiser provided when you come in, and practice social distancing. \nIf you would like to reschedule your appointment, please let me know and I can shift you to the same time next week. \n\nAll hail the almighty Mark McGowan!`  const messageFooter = hasEmail ? `\n${announcement}${signature}` : `\n\nAlso, unfortunately I don't have your email in my system 🤖 may I please have your email address? Thank you! ${signature}`
+const messageFooter = hasEmail ? `${announcement}${signature}` : `\n${announcement}${signature}\n\nAlso, unfortunately I don't have your email in my system 🤖 may I please have your email address? Thank you! ${signature}`
+
+  return `${greeting}\n\n${mainMessage}\n\n${appendCatFact}${messageFooter}`
 }
 
 function formatEvent(event) {
@@ -95,18 +97,6 @@ events.forEach(event => {
     counter ++
   }
 })
-
-// //Generate texts with invalid numbers and send to self
-// events.forEach(event => {
-//   const eventName = event.title
-//   if (!patientArray.includes(eventName)) {
-//     console.log(`CONTACT NOT FOUND: ${eventName}`)
-//     pList.push({
-//       number: '0433772956',
-//       smsBody: `Message to: ${eventName}`
-//     })
-//   }
-// })
 
 console.log( pList)
 
