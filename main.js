@@ -1,6 +1,7 @@
 let pullDate = args.shortcutParameter
 let now = new Date()
 let dayOfWeek = now.getDay()
+let wordFilter = ['cx:', 'check:', 'birthday', 'lunch', 'rent', 'coming', 'open', 'closed', 'school']
 
 async function getFacts(amount) {
 //  let url = "https://uselessfacts.jsph.pl/random.json?language=en"    
@@ -30,15 +31,16 @@ function formatTime(startTime) {
   return `${hours12(startTime)}:${minutes12(startTime)}`
 }
 
-function formatSMSBody(pullDate, firstName, startTime, catFact, hasEmail) {
-  const day = pullDate === 'today' ? 'today' : 'tomorrow'
+function formatSMSBody(pullDate, formattedEvent, catFact, hasEmail) {
   const signature = '🍐😸'
-  const greeting = `Hay ${firstName}!`
-  const mainMessage = `This is a friendly meow reminder for your appointment ${day} at: ${formatTime(startTime)}.`
+  const greeting = `Hay ${formattedEvent.firstName}!`
+  const mainMessage = `This is a friendly meow reminder for your appointment ${pullDate === 'today' ? 'today' : 'tomorrow'} at: ${formatTime(formattedEvent.startTime)}.`
   const appendCatFact = `Random Cat Fact: ${catFact}`
 //   const announcement = `\nAs you may already be aware, Perth metro is under Lockdown until Friday 6pm.\nJust like in March last year, essential health workers are able to keep working (with masks). However, if you are feeling *any* respiratory symptoms, please let me know immediately so we can reschedule your appointment.\n\nAside from that, please use the sanitiser provided when you come in, and practice social distancing. \nIf you would like to reschedule your appointment, please let me know and I can shift you to the same time next week. \n\nAll hail the almighty Mark McGowan!`
-const announcement = `\n\nLOCKDOWN UPDATE: THE FOLLOWING DOES NOT APPLY TO GINGIN\n\nAs you may already be aware, Perth metro is under Lockdown until Friday 6pm.\nJust like in March last year, essential health workers are able to keep working (with masks). However, if you are feeling *any* respiratory symptoms, please let me know immediately so we can reschedule your appointment.\n\nAside from that, please use the sanitiser provided when you come in, and practice social distancing. \nIf you would like to reschedule your appointment, please let me know and I can shift you to the same time next week. \n\nAll hail the almighty Mark McGowan!`  const messageFooter = hasEmail ? `\n${announcement}${signature}` : `\n\nAlso, unfortunately I don't have your email in my system 🤖 may I please have your email address? Thank you! ${signature}`
-const messageFooter = hasEmail ? `${announcement}${signature}` : `\n${announcement}${signature}\n\nAlso, unfortunately I don't have your email in my system 🤖 may I please have your email address? Thank you! ${signature}`
+// const announcement = `\n\nLOCKDOWN UPDATE: THE FOLLOWING DOES NOT APPLY TO GINGIN\n\nAs you may already be aware, Perth metro is under Lockdown until Friday 6pm.\nJust like in March last year, essential health workers are able to keep working (with masks). However, if you are feeling *any* respiratory symptoms, please let me know immediately so we can reschedule your appointment.\n\nAside from that, please use the sanitiser provided when you come in, and practice social distancing. \nIf you would like to reschedule your appointment, please let me know and I can shift you to the same time next week. \n\nAll hail the almighty Mark McGowan!`  
+const announcement = `\n\nAs you may already be aware, Perth metro is under Lockdown until Friday 6pm.\nJust like in March last year, essential health workers are able to keep working (with masks). However, if you are feeling *any* respiratory symptoms, please let me know immediately so we can reschedule your appointment.\n\nAside from that, please use the sanitiser provided when you come in, and practice social distancing. \nIf you would like to reschedule your appointment, please let me know and I can shift you to the same time next week. \n\nAll hail the almighty Mark McGowan!`  
+const requestEmail = `\n\nAlso, unfortunately I don't have your email in my system 🤖 may I please have your email address? Thank you! `
+const messageFooter = `${hasEmail ? '' : requestEmail}${announcement}\n${signature}`
 
   return `${greeting}\n\n${mainMessage}\n\n${appendCatFact}${messageFooter}`
 }
@@ -46,9 +48,9 @@ const messageFooter = hasEmail ? `${announcement}${signature}` : `\n${announceme
 function formatEvent(event) {
   const startTime = event.startDate
   const eventName = event.title
-  const isInitial = event.title.toLowerCase().includes('initial')
-  const isConcession = event.title.toLowerCase().match(/\sc$/)
-  const eventNameFormatted = isInitial || isConcession ? event.title.match(/.*(?=\s\w+$)/)[0] : event.title
+  const isInitial = eventName.toLowerCase().includes('initial')
+  const isConcession = eventName.toLowerCase().match(/\sc$/)
+  const eventNameFormatted = isInitial || isConcession ? eventName.match(/.*(?=\s\w+$)/)[0] : eventName
 
   let firstName = eventNameFormatted.match(/(^\w+)/)[0]
   firstName = firstName.charAt(0).toUpperCase() + firstName.slice(1)
@@ -58,25 +60,28 @@ function formatEvent(event) {
   return { firstName, lastName, startTime, eventName }
 }
 
+
 events.forEach(event => {
-  const { firstName, lastName, startTime, eventName } = formatEvent(event)
+  const formattedEvent = formatEvent(event)
   const catFact = factArray[counter].match(/\w+/g).length >= 2 ? factArray[counter] : factArray[counter + 1]
+  let hasEmail = false
+  const isFilteredEvent = !formattedEvent.eventName.toLowerCase().split(' ').some(word => wordFilter.indexOf(word))
   
-  if (eventName.toLowerCase().split(' ').some(word => ['cx', 'check', 'birthday', 'lunch', 'coming'].indexOf(word))) {
+  if (!isFilteredEvent) {
       contacts.forEach( contact => {
       
-      if (contact.familyName === lastName && contact.givenName === firstName) {
+      if (contact.familyName === formattedEvent.lastName && contact.givenName === formattedEvent.firstName) {
 
         if (contact.phoneNumbers.length === 1) { 
 
-          if (!patientArray.includes(eventName)) {  
-          console.log(eventName)
-          patientArray.push(eventName)
-          const hasEmail = contact.emailAddresses.length
+          if (!patientArray.includes(formattedEvent.eventName)) {  
+          console.log(formattedEvent.eventName)
+          patientArray.push(formattedEvent.eventName)
+          hasEmail = contact.emailAddresses.length
           
           pList.push({
             number: contact.phoneNumbers[0].value ? contact.phoneNumbers[0].value : '0433772956',
-            smsBody: formatSMSBody(pullDate, firstName, startTime, catFact, hasEmail)
+            smsBody: formatSMSBody(pullDate, formattedEvent, catFact, hasEmail)
           })
 
           counter ++
@@ -87,11 +92,11 @@ events.forEach(event => {
     })
   }
 
-  if (!patientArray.includes(eventName)) {
-    console.log(`CONTACT NOT FOUND: ${eventName}`)
+  if (!patientArray.includes(formattedEvent.eventName) && isFilteredEvent) {
+    console.log(`CONTACT NOT FOUND: ${formattedEvent.eventName}`)
     pList.push({
       number: '0433772956',
-      smsBody: formatSMSBody(pullDate, firstName, startTime, catFact, true)
+      smsBody: formatSMSBody(pullDate, formattedEvent, catFact, hasEmail)
     })
 
     counter ++
