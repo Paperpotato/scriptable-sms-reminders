@@ -80,7 +80,7 @@ events.forEach(event => {
           pList.push({
             number: contact.phoneNumbers[0].value ? contact.phoneNumbers[0].value : '0433772956',
             smsBody: formatSMSBody(pullDate, formattedEvent, catFact, hasEmail),
-            sendEmail: ['Daphen Barlow'].includes(formattedEvent.eventName)
+            sendEmail: ['Daphne Barlow'].includes(formattedEvent.eventName)
           })
 
           counter ++
